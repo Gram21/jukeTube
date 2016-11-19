@@ -1,7 +1,7 @@
 package im.janke.jukeTube.service;
 
 import im.janke.jukeTube.model.Player;
-import im.janke.jukeTube.model.impl.VLCPlayer;
+import im.janke.jukeTube.model.impl.VLCPlayerRC;
 
 public class JukeBox {
 	/* The player that plays the tunes */
@@ -12,7 +12,13 @@ public class JukeBox {
 	private boolean shuffleMode = false;
 
 	public JukeBox() {
-		this.player = new VLCPlayer();
+		this.player = new VLCPlayerRC();
+		this.player.initPlayer(); // is this good here?
+	}
+
+	public JukeBox(Player player) {
+		this.player = player;
+		this.player.initPlayer();
 	}
 
 	/**

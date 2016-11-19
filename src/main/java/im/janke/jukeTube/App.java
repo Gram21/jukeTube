@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import im.janke.jukeTube.model.Player;
+import im.janke.jukeTube.model.impl.VLCPlayerTelnet;
 import im.janke.jukeTube.service.JukeBox;
 
 /**
@@ -13,15 +14,18 @@ import im.janke.jukeTube.service.JukeBox;
 public class App
 {
 	public static void main(String[] args) {
-		JukeBox jukeBox = new JukeBox();
+		JukeBox jukeBox = new JukeBox(new VLCPlayerTelnet());
 		Player p = jukeBox.getPlayer();
 
+		sleep();
 		for (String song : nightcorePlaylist()) {
 			p.enqueue(song);
 		}
 		sleep();
 		p.setShuffleMode(true);
-		p.play();
+		if (!p.isPlaying()) {
+			p.play();
+		}
 	}
 
 	// below are convenience methods that might be removed later on!

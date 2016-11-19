@@ -1,5 +1,6 @@
 package im.janke.jukeTube.model;
 
+//TODO JavaDoc
 public abstract class Player {
 
 	public abstract void initPlayer();
@@ -17,6 +18,8 @@ public abstract class Player {
 	public abstract void play();
 
 	public abstract void stop();
+
+	public abstract void deleteFromPlaylist(int index);
 
 	public abstract void setRepeatMode(boolean value);
 

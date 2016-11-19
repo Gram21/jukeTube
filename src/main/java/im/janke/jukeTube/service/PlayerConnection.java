@@ -7,11 +7,10 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
- * @author Jan
+ * @author Gram21
  *
  */
 public class PlayerConnection {
-
 
 	private Socket connection;
 	private BufferedReader con_reader;
@@ -68,7 +67,7 @@ public class PlayerConnection {
 	 * @return the read lines
 	 */
 	public String sendCmdAndAwaitNLinesResponse(String cmd, int n) {
-		System.out.println(">>\t" + cmd);
+		System.out.println("[>>]\t" + cmd);
 		this.con_writer.println(cmd);
 		return this.readNLines(n);
 	}
@@ -81,9 +80,9 @@ public class PlayerConnection {
 	 * @return the response of the player
 	 */
 	public String sendCmdAndAwaitResponse(String cmd) {
-		System.out.println(">>\t" + cmd);
+		System.out.println("[>>]\t" + cmd);
 		this.con_writer.println(cmd);
-		return this.readToReturn();
+		return this.readToImmediateStop();
 	}
 
 	/**
@@ -102,7 +101,7 @@ public class PlayerConnection {
 			while (counter < n) {
 				line = this.con_reader.readLine();
 				response += line + "\n";
-				System.out.println("<<\t" + line);
+				System.out.println("[<<]\t" + line);
 				counter++;
 			}
 		} catch (IOException e) {
@@ -117,15 +116,15 @@ public class PlayerConnection {
 	 * @return the read lines
 	 */
 	// TODO maybe add a timeout to this method
-	public String readToReturn() {
+	public String readToImmediateStop() {
 		String response = "";
 		String line = null;
 		try {
 			do {
 				line = this.con_reader.readLine();
 				response += line + "\n";
-				System.out.println("<<\t" + line);
-			} while (!line.contains("returned"));
+				System.out.println("[<<]\t" + line);
+			} while (!line.contains("returned ") /* && !line.endsWith("> ") */); // TODO check and make failure proof
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

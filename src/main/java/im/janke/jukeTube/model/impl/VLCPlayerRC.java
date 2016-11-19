@@ -10,19 +10,19 @@ import im.janke.jukeTube.service.PlayerConnection;
  * @author Gram21
  *
  */
-// TODO: check all!
-public class VLCPlayer extends Player {
+// TODO: check all! PROBLEM: rc gets us better(more) responses but lua_telnet has better controls
+public class VLCPlayerRC extends Player {
 	private PlayerConnection vlc_rc = null;
 
 	/* Std values for Host and Port */
 	private static final String HOST = "localhost";
 	private static final int PORT = 4212;
 
-	public VLCPlayer() {
+	public VLCPlayerRC() {
 		this.vlc_rc = new PlayerConnection(HOST, PORT);
 	}
 
-	public VLCPlayer(String host, int port) {
+	public VLCPlayerRC(String host, int port) {
 		this.vlc_rc = new PlayerConnection(host, port);
 	}
 
@@ -126,6 +126,12 @@ public class VLCPlayer extends Player {
 			e.printStackTrace();
 		}
 		return ret;
+	}
+
+	@Override
+	public void deleteFromPlaylist(int index) {
+		// TODO
+		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
 }
