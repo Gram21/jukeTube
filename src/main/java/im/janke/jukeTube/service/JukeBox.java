@@ -1,6 +1,7 @@
 package im.janke.jukeTube.service;
 
 import im.janke.jukeTube.model.Player;
+import im.janke.jukeTube.model.impl.VLCPlayer;
 
 public class JukeBox {
 	/* The player that plays the tunes */
@@ -9,6 +10,10 @@ public class JukeBox {
 	/* Playback modes */
 	private boolean repeatMode = false;
 	private boolean shuffleMode = false;
+
+	public JukeBox() {
+		this.player = new VLCPlayer();
+	}
 
 	/**
 	 * Switches the repeat mode. If it was on, it will get turned off and vice versa.
@@ -26,7 +31,7 @@ public class JukeBox {
 
 	/**
 	 * Returns if the repeat mode is on or off.
-	 * 
+	 *
 	 * @return the repeat mode
 	 */
 	public boolean isInRepeatMode() {
@@ -35,10 +40,15 @@ public class JukeBox {
 
 	/**
 	 * Returns if the shuffle mode is on or off.
-	 * 
+	 *
 	 * @return the shuffle mode
 	 */
 	public boolean isInShuffleMode() {
 		return this.shuffleMode;
+	}
+
+	@Deprecated
+	public Player getPlayer() {
+		return this.player;
 	}
 }

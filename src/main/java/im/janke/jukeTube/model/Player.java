@@ -8,11 +8,13 @@ public abstract class Player {
 
 	public abstract String getStatusText();
 
-	public abstract void play(String link);
+	public abstract void enqueue(String link);
 
 	public abstract void pause();
 
 	public abstract void unpause();
+
+	public abstract void play();
 
 	public abstract void stop();
 
@@ -36,5 +38,7 @@ public abstract class Player {
 	public abstract int getCurrentTitleLength();
 
 	public abstract int getCurrentPlaytime();
+
+	public abstract String getCurrentPlaylist();
 
 }
