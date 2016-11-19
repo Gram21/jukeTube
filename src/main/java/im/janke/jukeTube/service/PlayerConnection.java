@@ -11,6 +11,7 @@ import java.net.Socket;
  *
  */
 public class PlayerConnection {
+	// private Logger logger = LogManager.getLogger();
 
 	private Socket connection;
 	private BufferedReader con_reader;
@@ -68,6 +69,7 @@ public class PlayerConnection {
 	 */
 	public String sendCmdAndAwaitNLinesResponse(String cmd, int n) {
 		System.out.println("[>>]\t" + cmd);
+		// logger.debug("[>>]\t{}", cmd);
 		this.con_writer.println(cmd);
 		return this.readNLines(n);
 	}
@@ -81,12 +83,14 @@ public class PlayerConnection {
 	 */
 	public String sendCmdAndAwaitResponse(String cmd) {
 		System.out.println("[>>]\t" + cmd);
+		// logger.debug("[>>]\t{}", cmd);
 		this.con_writer.println(cmd);
 		return this.readToImmediateStop();
 	}
 
 	public String sendCmdAndReadUntilLineContains(String cmd, String str) {
 		System.out.println("[>>]\t" + cmd);
+		// logger.debug("[>>]\t{}", cmd);
 		this.con_writer.println(cmd);
 		return this.readUntilLineContains(str);
 	}
@@ -108,6 +112,7 @@ public class PlayerConnection {
 				line = this.con_reader.readLine();
 				response += line + "\n";
 				System.out.println("[<<]\t" + line);
+				// logger.debug("[<<]\t{}", line);
 				counter++;
 			}
 		} catch (IOException e) {
@@ -134,6 +139,7 @@ public class PlayerConnection {
 				line = this.con_reader.readLine();
 				response += line + "\n";
 				System.out.println("[<<]\t" + line);
+				// logger.debug("[<<]\t{}", line);
 			} while (!line.contains(str)); // TODO check and make failure proof
 		} catch (IOException e) {
 			e.printStackTrace();
