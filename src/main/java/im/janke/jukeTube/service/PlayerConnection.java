@@ -85,6 +85,12 @@ public class PlayerConnection {
 		return this.readToImmediateStop();
 	}
 
+	public String sendCmdAndReadUntilLineContains(String cmd, String str) {
+		System.out.println("[>>]\t" + cmd);
+		this.con_writer.println(cmd);
+		return this.readUntilLineContains(str);
+	}
+
 	/**
 	 * Reads n lines from the server/player. CARE: Is blocking when no lines are produced!!
 	 *
@@ -117,6 +123,10 @@ public class PlayerConnection {
 	 */
 	// TODO maybe add a timeout to this method
 	public String readToImmediateStop() {
+		return this.readUntilLineContains("returned ");
+	}
+
+	public String readUntilLineContains(String str) {
 		String response = "";
 		String line = null;
 		try {
@@ -124,7 +134,7 @@ public class PlayerConnection {
 				line = this.con_reader.readLine();
 				response += line + "\n";
 				System.out.println("[<<]\t" + line);
-			} while (!line.contains("returned ") /* && !line.endsWith("> ") */); // TODO check and make failure proof
+			} while (!line.contains(str)); // TODO check and make failure proof
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

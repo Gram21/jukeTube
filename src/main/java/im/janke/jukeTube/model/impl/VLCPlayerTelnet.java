@@ -55,7 +55,7 @@ public class VLCPlayerTelnet extends Player {
 	@Override
 	public String getStatusText() {
 		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+		return this.vlc_telnet.sendCmdAndReadUntilLineContains("status", "( state ");
 	}
 
 	@Override
