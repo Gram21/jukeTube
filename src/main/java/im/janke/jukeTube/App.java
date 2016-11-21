@@ -3,8 +3,6 @@ package im.janke.jukeTube;
 import java.util.LinkedList;
 import java.util.List;
 
-import im.janke.jukeTube.model.Player;
-import im.janke.jukeTube.model.impl.VLCPlayerTelnet;
 import im.janke.jukeTube.service.JukeBox;
 
 /**
@@ -14,18 +12,11 @@ import im.janke.jukeTube.service.JukeBox;
 public class App
 {
 	public static void main(String[] args) {
-		JukeBox jukeBox = new JukeBox(new VLCPlayerTelnet());
-		Player p = jukeBox.getPlayer();
+		JukeBox jukeBox = new JukeBox();
 
-		sleep();
-		for (String song : nightcorePlaylist()) {
-			p.enqueue(song);
-		}
-		sleep();
-		p.setShuffleMode(true);
-		if (!p.isPlaying()) {
-			p.play();
-		}
+		jukeBox.addLinkListToPlaylist(nightcorePlaylist());
+		jukeBox.setShuffleModeOn(true);
+		jukeBox.startJukeBox();
 	}
 
 	// below are convenience methods that might be removed later on!
@@ -57,4 +48,5 @@ public class App
 
 		return playlist;
 	}
+
 }

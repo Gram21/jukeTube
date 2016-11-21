@@ -12,10 +12,10 @@
     	<logger name="im.janke.jukeTube" level="TRACE">
   			<AppenderRef ref="Console"/>
   		</logger>
-  		<logger name="im.janke.jukeTube.model.impl" level="DEBUG">
+  		<logger name="im.janke.jukeTube.model.impl" level="DEBUG" additivity="false">
   			<AppenderRef ref="Console"/>
   		</logger>
-  		<logger name="im.janke.jukeTube.service" level="DEBUG">
+  		<logger name="im.janke.jukeTube.service" level="DEBUG" additivity="false">
   			<AppenderRef ref="Console"/>
   		</logger>
   </Loggers>
