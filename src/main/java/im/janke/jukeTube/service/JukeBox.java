@@ -2,6 +2,7 @@ package im.janke.jukeTube.service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import im.janke.jukeTube.model.Player;
 import im.janke.jukeTube.model.impl.VLCPlayerTelnet;
@@ -42,10 +43,18 @@ public class JukeBox {
 	 *            (YouTube-)Link to the song
 	 */
 	public void addLinkToPlaylist(String link) {
-		// TODO CHECK LINK
+		if (!this.checkLink(link)) {
+			return;
+		}
 		this.player.enqueue(link);
 		this.playlist.put(link, new Integer(this.songCounter++));
 		// TODO check if successful?
+	}
+
+	private boolean checkLink(String link) {
+		Pattern p = Pattern
+				.compile("(http[s?]:\\/\\/)?(www\\.)?youtu(?:.*\\/v\\/|.*v\\=|\\.be\\/)([A-Za-z0-9_\\-]{11})");
+		return p.matcher(link).matches();
 	}
 
 	/**
