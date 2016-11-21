@@ -15,12 +15,13 @@ public class App
 		JukeBox jukeBox = new JukeBox();
 
 		jukeBox.addLinkListToPlaylist(nightcorePlaylist());
+		jukeBox.setRepeatModeOn(false);
 		jukeBox.setShuffleModeOn(true);
 		jukeBox.startJukeBox();
 
 		sleep(5000);
-		for (int i = 0; i < 5; i++) {
-			jukeBox.getCurrentTitle();
+		for (int i = 0; i < 10; i++) {
+			System.out.println("Currently playing:\t" + jukeBox.getCurrentTitle());
 			sleep(60000);
 		}
 	}

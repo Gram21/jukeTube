@@ -80,8 +80,8 @@ public class VLCPlayerTelnet extends Player {
 	 */
 	@Override
 	public boolean isPlaying() {
-		String output = this.vlc_telnet.sendCmdAndAwaitOneLineResponse("is_playing").replace(">", "").trim();
-		return output.equals("1");
+		String output = this.vlc_telnet.sendCmdAndAwaitOneLineResponse("is_playing");
+		return this.purgeResponse(output).equals("1");
 	}
 
 	/*
@@ -208,7 +208,7 @@ public class VLCPlayerTelnet extends Player {
 	 */
 	@Override
 	public String getCurrentTitle() {
-		return this.vlc_telnet.sendCmdAndAwaitOneLineResponse("get_title");
+		return this.purgeResponse(this.vlc_telnet.sendCmdAndAwaitOneLineResponse("get_title"));
 	}
 
 	/*
@@ -251,6 +251,20 @@ public class VLCPlayerTelnet extends Player {
 	public void deleteFromPlaylist(int index) {
 		// TODO
 		throw new UnsupportedOperationException("Not yet implemented");
+	}
+
+	/**
+	 * Purges/Cleans the given response so possible leading ">" are removed and the resulting String is trimmed.
+	 *
+	 * @param response
+	 *            The response string that should be cleaned
+	 * @return the purged response
+	 */
+	private String purgeResponse(String response) {
+		if (response == null) {
+			throw new IllegalArgumentException("Provided String is null");
+		}
+		return response.replace(">", "").trim();
 	}
 
 }
