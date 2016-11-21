@@ -5,13 +5,14 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import im.janke.jukeTube.model.Player;
+import im.janke.jukeTube.model.impl.Song;
 import im.janke.jukeTube.model.impl.VLCPlayerTelnet;
 
 public class JukeBox {
 	/* The player that plays the tunes */
 	private Player player;
 
-	private HashMap<String, Integer> playlist = new HashMap<>();
+	private HashMap<Song, Integer> playlist = new HashMap<>();
 	private int songCounter = 0;
 
 	/** Playback mode repeat (don't limit playback to one playback per song) */
@@ -42,13 +43,17 @@ public class JukeBox {
 	 * @param link
 	 *            (YouTube-)Link to the song
 	 */
-	public void addLinkToPlaylist(String link) {
+	public boolean addLinkToPlaylist(String link) {
 		if (!this.checkLink(link)) {
-			return;
+			return false;
 		}
-		this.player.enqueue(link);
-		this.playlist.put(link, new Integer(this.songCounter++));
-		// TODO check if successful?
+		Song song = new Song(link);
+		if (!this.playlist.containsKey(song)) {
+			this.player.enqueue(link); // TODO check if successful?
+			this.playlist.put(song, new Integer(this.songCounter++));
+			return true;
+		}
+		return false;
 	}
 
 	private boolean checkLink(String link) {
