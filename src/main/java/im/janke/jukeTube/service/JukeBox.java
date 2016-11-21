@@ -101,6 +101,15 @@ public class JukeBox {
 	}
 
 	/**
+	 * Returns the title of the currently played track.
+	 *
+	 * @return the title of the currently played track.
+	 */
+	public String getCurrentTitle() {
+		return this.player.getCurrentTitle();
+	}
+
+	/**
 	 * Switches the repeat mode. If it was on, it will get turned off and vice versa.
 	 */
 	public void switchRepeatMode() {

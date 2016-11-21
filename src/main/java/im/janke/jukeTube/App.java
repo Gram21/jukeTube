@@ -17,6 +17,12 @@ public class App
 		jukeBox.addLinkListToPlaylist(nightcorePlaylist());
 		jukeBox.setShuffleModeOn(true);
 		jukeBox.startJukeBox();
+
+		sleep(5000);
+		for (int i = 0; i < 5; i++) {
+			jukeBox.getCurrentTitle();
+			sleep(60000);
+		}
 	}
 
 	// below are convenience methods that might be removed later on!
