@@ -3,27 +3,21 @@ package im.janke.jukeTube;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+import im.janke.jukeTube.config.WebConfig;
 import im.janke.jukeTube.service.JukeBox;
 
-/**
- * Hello world!
- *
- */
+@Configuration
+@ComponentScan({ "im.janke.jukeTube" })
 public class App
 {
 	public static void main(String[] args) {
-		JukeBox jukeBox = new JukeBox();
-
-		jukeBox.addLinkListToPlaylist(nightcorePlaylist());
-		jukeBox.setRepeatModeOn(false);
-		jukeBox.setShuffleModeOn(true);
-		jukeBox.startJukeBox();
-
-		sleep(5000);
-		for (int i = 0; i < 10; i++) {
-			System.out.println("Currently playing:\t" + jukeBox.getCurrentTitle());
-			sleep(60000);
-		}
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(App.class);
+		new WebConfig(ctx.getBean(JukeBox.class));
+		ctx.registerShutdownHook();
 	}
 
 	// below are convenience methods that might be removed later on!
@@ -40,7 +34,7 @@ public class App
 	}
 
 	@Deprecated
-	private static List<String> nightcorePlaylist() {
+	public static List<String> nightcorePlaylist() {
 		LinkedList<String> playlist = new LinkedList<>();
 		playlist.addFirst("https://www.youtube.com/watch?v=D_IuxvnhCfA");
 		playlist.addFirst("https://www.youtube.com/watch?v=phpChjc9ESY");

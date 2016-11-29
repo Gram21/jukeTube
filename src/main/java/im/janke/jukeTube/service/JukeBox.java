@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.springframework.stereotype.Service;
+
 import im.janke.jukeTube.model.Player;
 import im.janke.jukeTube.model.impl.Song;
 import im.janke.jukeTube.model.impl.VLCPlayerTelnet;
 
+@Service
 public class JukeBox {
 	/* The player that plays the tunes */
 	private Player player;
@@ -35,6 +38,14 @@ public class JukeBox {
 	 */
 	public JukeBox(Player player) {
 		this.player = player;
+	}
+
+	/**
+	 * Starts the JukeBox (usually starts with playback then)
+	 */
+	public void startJukeBox() {
+		// TODO
+		this.player.play();
 	}
 
 	/**
@@ -81,14 +92,6 @@ public class JukeBox {
 	public void removeLinkFromPlaylist(String link) {
 		// TODO
 		throw new UnsupportedOperationException("Not yet implemented");
-	}
-
-	/**
-	 * Starts the JukeBox (usually starts with playback then)
-	 */
-	public void startJukeBox() {
-		// TODO
-		this.player.play();
 	}
 
 	/**

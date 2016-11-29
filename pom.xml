@@ -8,44 +8,110 @@
   <packaging>jar</packaging>
 
   <name>jukeTube</name>
-  <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <jdk.version>1.8</jdk.version>
     <log4j.version>2.7</log4j.version>
+    <spark.version>2.2</spark.version>
+	<spark.freemarker.version>2.0.0</spark.freemarker.version>
+	<freemarker.version>2.3.23</freemarker.version>
+	<spring.version>4.2.0.RELEASE</spring.version>
+	<jbcrypt.version>0.4</jbcrypt.version>
+	<commons.beanutils.version>1.9.2</commons.beanutils.version>
   </properties>
 
   <dependencies>
+  	<!-- JUnit -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <!-- Apache Logging Log4j API -->
     <dependency>
 	    <groupId>org.apache.logging.log4j</groupId>
 	    <artifactId>log4j-api</artifactId>
 	    <version>${log4j.version}</version>
   	</dependency>
+  	<!-- Apache Logging Log4j Core-->
   	<dependency>
 	    <groupId>org.apache.logging.log4j</groupId>
 	    <artifactId>log4j-core</artifactId>
 	    <version>${log4j.version}</version>
   	</dependency>
+  	<!-- Spark Java -->
+    <dependency>
+        <groupId>com.sparkjava</groupId>
+        <artifactId>spark-core</artifactId>
+        <version>${spark.version}</version>
+    </dependency>
+    <!-- Spark Freemarker -->
+    <dependency>
+        <groupId>com.sparkjava</groupId>
+        <artifactId>spark-template-freemarker</artifactId>
+        <version>${spark.freemarker.version}</version>
+    </dependency>
+    <!-- Freemarker -->
+    <dependency>
+        <groupId>org.freemarker</groupId>
+        <artifactId>freemarker</artifactId>
+        <version>${freemarker.version}</version>
+    </dependency>
+    <!-- Spring Core -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-core</artifactId>
+        <version>${spring.version}</version>
+    </dependency>
+    <!-- Spring Context -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>${spring.version}</version>
+    </dependency>
+    <!-- Password hashes -->
+    <dependency>
+        <groupId>de.svenkubiak</groupId>
+        <artifactId>jBCrypt</artifactId>
+        <version>${jbcrypt.version}</version>
+    </dependency>
+    <!-- Populate bean from request -->
+    <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils</artifactId>
+        <version>${commons.beanutils.version}</version>
+    </dependency>	
+  	
   </dependencies>
   
-   <build>
-	<plugins>
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-compiler-plugin</artifactId>
-			<version>3.5</version>
-			<configuration>
-				<source>${jdk.version}</source>
-				<target>${jdk.version}</target>
-			</configuration>
-		</plugin>
-	</plugins>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+			  	<artifactId>exec-maven-plugin</artifactId>
+			  	<version>1.2.1</version>
+			  	<executions>
+				    <execution>
+				      <goals>
+				          <goal>java</goal>
+				      </goals>
+			    	</execution>
+			  	</executions>
+			  	<configuration>
+				    <mainClass>im.janke.jukeTube.App</mainClass>
+				    <arguments></arguments>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 </project>
