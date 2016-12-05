@@ -25,10 +25,10 @@ public class WebConfig {
 
 	// Until better way
 	private void initJukeBox() {
-		this.jukeBox.addLinkListToPlaylist(App.nightcorePlaylist());
 		this.jukeBox.setRepeatModeOn(false);
 		this.jukeBox.setShuffleModeOn(true);
-		this.jukeBox.startJukeBox();
+		this.jukeBox.addLinkListToPlaylist(App.nightcorePlaylist());
+		// this.jukeBox.startJukeBox();
 	}
 
 	private void setupRoutes() {

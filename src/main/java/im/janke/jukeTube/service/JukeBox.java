@@ -2,10 +2,12 @@ package im.janke.jukeTube.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
+import im.janke.jukeTube.App;
 import im.janke.jukeTube.model.impl.Song;
 import uk.co.caprica.vlcj.component.AudioMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaPlayer;
@@ -19,7 +21,7 @@ public class JukeBox {
 	private final HeadlessMediaPlayer mediaPlayer;
 
 	private List<Song> playlist = new ArrayList<>();
-	private int currPosition = 0;
+	private List<Song> alreadyPlayedList = new ArrayList<>();
 
 	/** Playback mode repeat (don't limit playback to one playback per song) */
 	private boolean repeatMode = false;
@@ -62,57 +64,50 @@ public class JukeBox {
 					mediaPlayer.stop();
 					return;
 				}
-				mediaPlayer.playMedia(JukeBox.this.nextSong());
 
+				Song song = JukeBox.this.nextSong();
+				JukeBox.this.playlist.remove(song);
+				mediaPlayer.playMedia(song.getLink());
+				JukeBox.this.alreadyPlayedList.add(song);
+			}
+
+			@Override
+			public void subItemPlayed(MediaPlayer mediaPlayer, int subItemIndex) {
+				App.sleep(2500); // Wait for the item to actually start
+				System.out.println("Playing now: " + JukeBox.this.getCurrentTitle());
 			}
 
 		});
 	}
 
+	// NEEDED?
 	/**
 	 * Starts the JukeBox (usually starts with playback then)
 	 */
 	public void startJukeBox() {
 		// TODO
-		this.mediaPlayer.playMedia(this.nextSong());
+		Song s = this.nextSong();
+		if (s != null) {
+			this.mediaPlayer.playMedia(s.getLink());
+		}
 	}
 
 	public void stopJukeBox() {
+		// TODO
 		this.mediaPlayer.release();
 	}
 
 	private boolean finishedPlayback() {
-		return this.currPosition >= this.playlist.size();
-		// return this.playlist.isEmpty();
+		return this.playlist.isEmpty();
 	}
 
-	private String nextSong() {
+	private Song nextSong() {
 		// TODO
-		return this.playlist.get(this.currPosition++).getLink();
-	}
-
-	/**
-	 * Adds a given Link to the Playlist
-	 *
-	 * @param link
-	 *            (YouTube-)Link to the song
-	 */
-	public boolean addLinkToPlaylist(String link) {
-		if (!this.checkLink(link)) {
-			return false;
+		if (!this.playlist.isEmpty()) {
+			return this.playlist.get(0);
+		} else {
+			return null;
 		}
-		Song song = new Song(link);
-		if (!this.playlist.contains(song)) {
-			this.playlist.add(song);
-			return true;
-		}
-		return false;
-	}
-
-	private boolean checkLink(String link) {
-		Pattern p = Pattern
-				.compile("(http[s?]:\\/\\/)?(www\\.)?youtu(?:.*\\/v\\/|.*v\\=|\\.be\\/)([A-Za-z0-9_\\-]{11})");
-		return p.matcher(link).matches();
 	}
 
 	/**
@@ -122,8 +117,74 @@ public class JukeBox {
 	 *            List of (YouTube-)Links to songs
 	 */
 	public void addLinkListToPlaylist(List<String> linkList) {
-		linkList.forEach(link -> this.addLinkToPlaylist(link));
+		if (linkList != null && !linkList.isEmpty()) {
+			String firstLink = linkList.get(0);
+			linkList.forEach(link -> this.addLinkToPlaylist(link));
+			// Special case for the first link (so it doesnt get played twice):
+			Song firstSong = new Song("https://www.youtube.com/watch?v=" + this.getYTVideoID(firstLink));
+			this.playlist.remove(firstSong);
+			this.alreadyPlayedList.add(firstSong);
+		}
 	}
+
+	/**
+	 * Adds a given Link to the Playlist
+	 *
+	 * @param link
+	 *            (YouTube-)Link to the song
+	 */
+	public boolean addLinkToPlaylist(String link) {
+		String watchURL = this.getYTVideoID(link);
+		if (watchURL == null) {
+			return false;
+		}
+		Song song = new Song("https://www.youtube.com/watch?v=" + watchURL);
+		if (!this.songAlreadyContained(song)) {
+			// start playing when nothing is playing yet
+			if (!this.mediaPlayer.isPlaying()) {
+				if (this.playlist.isEmpty()) {
+					this.mediaPlayer.playMedia(song.getLink());
+				}
+			}
+
+			this.playlist.add(song);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Takes the input link and checks whether it is a valid YouTube Link. If it is a valid YT Link it the extracts the
+	 * watchURL, that is the id of the YouTube Video. If the Link is invalid <code>null</code> is returned.
+	 *
+	 * @param link
+	 *            Link to a possible YouTube Video
+	 * @return the ID of the YouTube Video, if it is a valid Link. <code>null</code> otherwise
+	 */
+	private String getYTVideoID(String link) {
+		Matcher m = Pattern
+				.compile("(http[s?]:\\/\\/)?(www\\.)?youtu(?:.*\\/v\\/|.*v\\=|\\.be\\/)([A-Za-z0-9_\\-]{11})")
+				.matcher(link);
+		String retString = null;
+		if (m.matches()) {
+			retString = m.group(3);
+		}
+		return retString;
+	}
+
+	private boolean songAlreadyContained(Song song) {
+		if (song == null) {
+			throw new IllegalArgumentException("Song must not be null!");
+		}
+		if (this.playlist.contains(song)) {
+			return true;
+		}
+		if (this.alreadyPlayedList.contains(song)) {
+			return true;
+		}
+		return false;
+	}
+
 
 	/**
 	 * Removes a given Link from the PLaylist. Does nothing, when the Link is not found in the Playlist
@@ -133,7 +194,7 @@ public class JukeBox {
 	 */
 	public void removeLinkFromPlaylist(String link) {
 		// TODO
-		throw new UnsupportedOperationException("Not yet implemented");
+		this.playlist.remove(new Song(link));
 	}
 
 	/**
@@ -141,6 +202,7 @@ public class JukeBox {
 	 */
 	public void pause() {
 		// TODO
+		this.mediaPlayer.pause();
 	}
 
 	/**
@@ -148,10 +210,11 @@ public class JukeBox {
 	 */
 	public void unpause() {
 		// TODO
+		this.mediaPlayer.play();
 	}
 
 	/**
-	 * Returns the title of the currently played track.
+	 * Returns the title of the currently played track. If no track is played, then an empty String is returned
 	 *
 	 * @return the title of the currently played track.
 	 */
