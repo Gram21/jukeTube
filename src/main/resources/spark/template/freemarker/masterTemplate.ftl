@@ -25,6 +25,9 @@
         <div class="body">
           <#nested />
         </div>
+        <br>
+        <br>
+        <br>
         <div class="footer">
           jukeTube &mdash; Your Remote Player
         </div>

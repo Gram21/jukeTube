@@ -34,7 +34,7 @@ public class App
 	@Deprecated
 	public static List<String> nightcorePlaylist() {
 		LinkedList<String> playlist = new LinkedList<>();
-		playlist.addFirst("https://www.youtube.com/watch?v=D_IuxvnhCfA");
+		//playlist.addFirst("https://www.youtube.com/watch?v=D_IuxvnhCfA");
 		playlist.addFirst("https://www.youtube.com/watch?v=phpChjc9ESY");
 		playlist.addFirst("https://www.youtube.com/watch?v=k0lN5UnbGDA");
 		playlist.addFirst("https://www.youtube.com/watch?v=dOtlh7E1T14");

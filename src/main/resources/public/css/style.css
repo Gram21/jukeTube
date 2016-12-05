@@ -43,6 +43,8 @@ div.error {
     -webkit-border-radius: 2px;
     padding: 4px;
     font-size: 13px;
+    color: #DD6F6F;
+    font-weight: bold;
 }
 
 

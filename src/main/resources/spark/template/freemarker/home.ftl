@@ -2,15 +2,21 @@
 <#import "masterTemplate.ftl" as layout />
 
 <@layout.masterTemplate title="Home">
-    <h2>${pageTitle}</h2>
-    <#if currentlyPlaying??>
-      <div class="currentlyPlaying">
-        <strong>Currently Playing:</strong> ${currentlyPlaying}
-      </div>
-    </#if>
+    <h2>Home</h2>
     <#if error??>
       <div class="error">
         <strong>Error:</strong> ${error}
       </div>
     </#if>
+    <#if currentlyPlaying??>
+      <div class="currentlyPlaying">
+        <strong>Currently Playing:</strong> ${currentlyPlaying}
+      </div>
+    </#if>
+    <br>
+    <div class="container">
+      <form action="/" method="post">
+        <input type="text" name="song_link" maxlength="43"><input type="submit" value="Add to Playlist">
+      </form>
+    </div>
 </@layout.masterTemplate>

@@ -14,7 +14,7 @@ import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.headless.HeadlessMediaPlayer;
 
-// TODO refactor everything completely with vlcj, implement missing functionality
+// TODO implement missing functionality
 @Service
 public class JukeBox {
 	/* The player that plays the tunes */

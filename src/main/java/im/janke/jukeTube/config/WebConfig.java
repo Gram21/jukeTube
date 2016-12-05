@@ -2,11 +2,15 @@ package im.janke.jukeTube.config;
 
 import static spark.Spark.before;
 import static spark.Spark.get;
+import static spark.Spark.halt;
 import static spark.Spark.post;
 import static spark.SparkBase.staticFileLocation;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.eclipse.jetty.util.MultiMap;
+import org.eclipse.jetty.util.UrlEncoded;
 
 import im.janke.jukeTube.App;
 import im.janke.jukeTube.service.JukeBox;
@@ -36,18 +40,43 @@ public class WebConfig {
 		// HOME
 		get("/", (req, res) -> {
 			Map<String, Object> map = new HashMap<>();
-			map.put("pageTitle", "Home");
-			String currentlyPlaying = this.jukeBox.getCurrentTitle();
-			System.out.println(currentlyPlaying);
-			if (currentlyPlaying.equals("")) {
-				currentlyPlaying = "None";
-			}
-			map.put("currentlyPlaying", currentlyPlaying);
+			map.put("currentlyPlaying", this.getCurrentTitle());
 			return new ModelAndView(map, "home.ftl");
 		}, new FreeMarkerEngine());
 		before("/", (req, res) -> {
 			System.out.println("[I]\tIncoming request from " + req.ip());
 		});
+		post("/", (req, res) -> {
+			String song_link = null;
+			try {
+				MultiMap<String> params = new MultiMap<String>();
+				UrlEncoded.decodeTo(req.body(), params, "UTF-8", -1);
+				song_link = params.getValue("song_link", 0);
+				System.out.println("[I]\tGot link to song: " + song_link);
+			} catch (Exception e) {
+				halt(501);
+				return null;
+			}
+
+			Map<String, Object> map = new HashMap<>();
+			boolean success = false;
+			if (song_link != null) {
+				success = this.jukeBox.addLinkToPlaylist(song_link);
+				if (success) {
+					System.out.println("[I]\tAdded Link.");
+					res.redirect("/");
+					halt();
+				} else {
+					System.err.println("[I]\tCould not process link.");
+					map.put("error", "Could not process link.");
+					map.put("currentlyPlaying", this.getCurrentTitle());
+				}
+			} else {
+				System.err.println("[I]\tCould not process link.");
+				map.put("error", "Could not process link.");
+			}
+			return new ModelAndView(map, "home.ftl");
+		}, new FreeMarkerEngine());
 
 		// TEMPORARY
 		get("/u/:username", (req, res) -> {
@@ -126,4 +155,13 @@ public class WebConfig {
 			return null;
 		});
 	}
+
+	private String getCurrentTitle() {
+		String currentlyPlaying = this.jukeBox.getCurrentTitle();
+		if (currentlyPlaying.trim().equals("")) {
+			currentlyPlaying = "None";
+		}
+		return currentlyPlaying;
+	}
+
 }
