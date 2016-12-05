@@ -1,22 +1,25 @@
 package im.janke.jukeTube.service;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
-import im.janke.jukeTube.model.Player;
 import im.janke.jukeTube.model.impl.Song;
-import im.janke.jukeTube.model.impl.VLCPlayerTelnet;
+import uk.co.caprica.vlcj.component.AudioMediaPlayerComponent;
+import uk.co.caprica.vlcj.player.MediaPlayer;
+import uk.co.caprica.vlcj.player.MediaPlayerFactory;
+import uk.co.caprica.vlcj.player.headless.HeadlessMediaPlayer;
 
+// TODO refactor everything completely with vlcj, implement missing functionality
 @Service
 public class JukeBox {
 	/* The player that plays the tunes */
-	private Player player;
+	private final HeadlessMediaPlayer mediaPlayer;
 
-	private HashMap<Song, Integer> playlist = new HashMap<>();
-	private int songCounter = 0;
+	private List<Song> playlist = new ArrayList<>();
+	private int currPosition = 0;
 
 	/** Playback mode repeat (don't limit playback to one playback per song) */
 	private boolean repeatMode = false;
@@ -24,20 +27,46 @@ public class JukeBox {
 	private boolean shuffleMode = false;
 
 	/**
-	 * Creates a new JukeBox. Default player is VLC player with telnet connection (with default settings).
+	 * Creates a new JukeBox with default values.
 	 */
 	public JukeBox() {
-		this.player = new VLCPlayerTelnet();
-	}
+		this.mediaPlayer = new MediaPlayerFactory("--vout", "dummy").newHeadlessMediaPlayer();
+		this.mediaPlayer.setPlaySubItems(true);
+		this.mediaPlayer.addMediaPlayerEventListener(new AudioMediaPlayerComponent() {
 
-	/**
-	 * Creates a new JukeBox. The provided Player will be used.
-	 *
-	 * @param player
-	 *            Player that should be used for playback
-	 */
-	public JukeBox(Player player) {
-		this.player = player;
+			@Override
+			public void error(MediaPlayer mediaPlayer) {
+				// TODO ?
+			}
+
+			@Override
+			public void playing(MediaPlayer mediaPlayer) {
+				// TODO ?
+				// Needed? Because we operate on subItems and YouTube playing gets called often:
+				// Once when URL was parsed and once when playback finished
+			}
+
+			@Override
+			public void finished(MediaPlayer mediaPlayer) {
+				// TODO ?
+				// Needed? Because we operate on subItems and YouTube finished gets called often:
+				// Once when URL was parsed and once when playback finished
+			}
+
+			@Override
+			public void subItemFinished(MediaPlayer mediaPlayer, int subItemIndex) {
+				// System.out.println("SubItemFinished");
+				if (JukeBox.this.finishedPlayback()) {
+					System.out.println("Finished Playback.");
+					// TODO and then?
+					mediaPlayer.stop();
+					return;
+				}
+				mediaPlayer.playMedia(JukeBox.this.nextSong());
+
+			}
+
+		});
 	}
 
 	/**
@@ -45,7 +74,21 @@ public class JukeBox {
 	 */
 	public void startJukeBox() {
 		// TODO
-		this.player.play();
+		this.mediaPlayer.playMedia(this.nextSong());
+	}
+
+	public void stopJukeBox() {
+		this.mediaPlayer.release();
+	}
+
+	private boolean finishedPlayback() {
+		return this.currPosition >= this.playlist.size();
+		// return this.playlist.isEmpty();
+	}
+
+	private String nextSong() {
+		// TODO
+		return this.playlist.get(this.currPosition++).getLink();
 	}
 
 	/**
@@ -59,9 +102,8 @@ public class JukeBox {
 			return false;
 		}
 		Song song = new Song(link);
-		if (!this.playlist.containsKey(song)) {
-			this.player.enqueue(link); // TODO check if successful?
-			this.playlist.put(song, new Integer(this.songCounter++));
+		if (!this.playlist.contains(song)) {
+			this.playlist.add(song);
 			return true;
 		}
 		return false;
@@ -98,14 +140,14 @@ public class JukeBox {
 	 * Pauses the playback
 	 */
 	public void pause() {
-		this.player.pause();
+		// TODO
 	}
 
 	/**
 	 * Unpauses the playback
 	 */
 	public void unpause() {
-		this.player.unpause();
+		// TODO
 	}
 
 	/**
@@ -114,15 +156,20 @@ public class JukeBox {
 	 * @return the title of the currently played track.
 	 */
 	public String getCurrentTitle() {
-		return this.player.getCurrentTitle();
+		// TODO is this okay with subItem 0?
+		String title = "";
+		if (this.mediaPlayer.isPlaying()) {
+			title = this.mediaPlayer.getSubItemMediaMeta().get(0).getTitle();
+		}
+		return title;
 	}
 
 	/**
 	 * Switches the repeat mode. If it was on, it will get turned off and vice versa.
 	 */
 	public void switchRepeatMode() {
+		// TODO
 		this.repeatMode = !this.repeatMode;
-		this.player.setRepeatMode(this.repeatMode);
 	}
 
 	/**
@@ -130,7 +177,7 @@ public class JukeBox {
 	 */
 	public void setRepeatModeOn(boolean on) {
 		this.repeatMode = on;
-		this.player.setRepeatMode(this.repeatMode);
+		// TODO
 	}
 
 	/**
@@ -138,7 +185,7 @@ public class JukeBox {
 	 */
 	public void switchShuffleMode() {
 		this.shuffleMode = !this.shuffleMode;
-		this.player.setShuffleMode(this.shuffleMode);
+		// TODO
 	}
 
 	/**
@@ -146,7 +193,7 @@ public class JukeBox {
 	 */
 	public void setShuffleModeOn(boolean on) {
 		this.shuffleMode = on;
-		this.player.setShuffleMode(this.shuffleMode);
+		// TODO
 	}
 
 	/**
