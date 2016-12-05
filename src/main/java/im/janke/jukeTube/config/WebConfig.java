@@ -64,8 +64,8 @@ public class WebConfig {
 					res.redirect("/");
 					halt();
 				} else {
-					System.err.println("[I]\tCould not process link.");
-					map.put("error", "Could not process link.");
+					System.err.println("[I]\tCould not process link. Maybe the song was already added.");
+					map.put("error", "Could not process link. Maybe the song was already added.");
 					map.put("currentlyPlaying", this.getCurrentSong());
 				}
 			} else {

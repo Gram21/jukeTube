@@ -11,8 +11,7 @@
 
       <div class="currentlyPlaying">
         <strong>Currently Playing:</strong>
-        <#if currentlyPlaying??>
-        ${currentlyPlaying.title}
+        <#if currentlyPlaying??>${currentlyPlaying.title}
         <#else>None
         </#if>
       </div>

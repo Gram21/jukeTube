@@ -125,8 +125,6 @@ public class JukeBox {
 	public void addLinkListToPlaylist(List<String> linkList) {
 		if (linkList != null && !linkList.isEmpty()) {
 			linkList.forEach(link -> this.addLinkToPlaylist(link));
-			// Special case for the first link (so it doesn't get played twice):
-			this.playlist.remove(0);
 		}
 	}
 
@@ -145,8 +143,9 @@ public class JukeBox {
 		if (!this.songAlreadyContained(song)) {
 			// start playing when nothing is playing yet
 			if (!this.mediaPlayer.isPlaying()) {
-				if (this.playlist.isEmpty()) {
+				if (this.playlist.isEmpty() && this.currentlyPlayedSong == null) {
 					this.playSong(song);
+					return true;
 				}
 			}
 
