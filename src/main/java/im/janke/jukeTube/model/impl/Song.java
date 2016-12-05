@@ -37,18 +37,17 @@ public class Song {
 	 */
 	public String getTitle() {
 		if (this.title == null) {
-			this.fetchTitle();
+			return "Could not retrieve title. Try reloading in a few seconds";
 		}
 		return this.title;
 	}
 
 	/**
-	 * Fetches the title of the song and sets the title attribute.
+	 * @param title
+	 *            the title to set
 	 */
-	private void fetchTitle() {
-		String fetchedTitle = "";
-		// TODO
-		this.title = fetchedTitle;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	/*

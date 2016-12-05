@@ -12,7 +12,7 @@ import java.util.Map;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
 
-import im.janke.jukeTube.App;
+import im.janke.jukeTube.model.impl.Song;
 import im.janke.jukeTube.service.JukeBox;
 import spark.ModelAndView;
 import spark.template.freemarker.FreeMarkerEngine;
@@ -29,10 +29,7 @@ public class WebConfig {
 
 	// Until better way
 	private void initJukeBox() {
-		this.jukeBox.setRepeatModeOn(false);
-		this.jukeBox.setShuffleModeOn(true);
-		this.jukeBox.addLinkListToPlaylist(App.nightcorePlaylist());
-		// this.jukeBox.startJukeBox();
+		this.jukeBox.startJukeBox();
 	}
 
 	private void setupRoutes() {
@@ -40,7 +37,7 @@ public class WebConfig {
 		// HOME
 		get("/", (req, res) -> {
 			Map<String, Object> map = new HashMap<>();
-			map.put("currentlyPlaying", this.getCurrentTitle());
+			map.put("currentlyPlaying", this.getCurrentSong());
 			return new ModelAndView(map, "home.ftl");
 		}, new FreeMarkerEngine());
 		before("/", (req, res) -> {
@@ -69,7 +66,7 @@ public class WebConfig {
 				} else {
 					System.err.println("[I]\tCould not process link.");
 					map.put("error", "Could not process link.");
-					map.put("currentlyPlaying", this.getCurrentTitle());
+					map.put("currentlyPlaying", this.getCurrentSong());
 				}
 			} else {
 				System.err.println("[I]\tCould not process link.");
@@ -83,10 +80,7 @@ public class WebConfig {
 			String username = req.params(":username");
 			Map<String, Object> map = new HashMap<>();
 			map.put("pageTitle", "Home");
-			String currentlyPlaying = this.jukeBox.getCurrentTitle();
-			if (currentlyPlaying.equals("")) {
-				currentlyPlaying = "None";
-			}
+			Song currentlyPlaying = this.jukeBox.getCurrentSong();
 			map.put("currentlyPlaying", currentlyPlaying);
 			map.put("user", username);
 			return new ModelAndView(map, "home.ftl");
@@ -156,12 +150,7 @@ public class WebConfig {
 		});
 	}
 
-	private String getCurrentTitle() {
-		String currentlyPlaying = this.jukeBox.getCurrentTitle();
-		if (currentlyPlaying.trim().equals("")) {
-			currentlyPlaying = "None";
-		}
-		return currentlyPlaying;
+	private Song getCurrentSong() {
+		return this.jukeBox.getCurrentSong();
 	}
-
 }

@@ -8,11 +8,14 @@
         <strong>Error:</strong> ${error}
       </div>
     </#if>
-    <#if currentlyPlaying??>
+
       <div class="currentlyPlaying">
-        <strong>Currently Playing:</strong> ${currentlyPlaying}
+        <strong>Currently Playing:</strong>
+        <#if currentlyPlaying??>
+        ${currentlyPlaying.title}
+        <#else>None
+        </#if>
       </div>
-    </#if>
     <br>
     <div class="container">
       <form action="/" method="post">

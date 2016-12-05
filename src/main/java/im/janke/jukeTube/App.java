@@ -16,10 +16,16 @@ import uk.co.caprica.vlcj.discovery.NativeDiscovery;
 public class App
 {
 	public static void main(String[] args) {
-		new NativeDiscovery().discover(); // discover VLC
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(App.class);
-		new WebConfig(ctx.getBean(JukeBox.class));
-		ctx.registerShutdownHook();
+		boolean foundNative = new NativeDiscovery().discover(); // discover VLC
+		if (foundNative) {
+			AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(App.class);
+			new WebConfig(ctx.getBean(JukeBox.class));
+			ctx.registerShutdownHook();
+		} else {
+			System.err.println("Could not find VLC. Exiting");
+			System.exit(1);
+		}
+
 	}
 
 	// below are convenience methods that might be removed later on!

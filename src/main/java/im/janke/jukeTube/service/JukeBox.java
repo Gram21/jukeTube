@@ -22,6 +22,7 @@ public class JukeBox {
 
 	private List<Song> playlist = new ArrayList<>();
 	private List<Song> alreadyPlayedList = new ArrayList<>();
+	private Song currentlyPlayedSong = null;
 
 	/** Playback mode repeat (don't limit playback to one playback per song) */
 	private boolean repeatMode = false;
@@ -57,7 +58,8 @@ public class JukeBox {
 
 			@Override
 			public void subItemFinished(MediaPlayer mediaPlayer, int subItemIndex) {
-				// System.out.println("SubItemFinished");
+				JukeBox.this.alreadyPlayedList.add(JukeBox.this.currentlyPlayedSong);
+				JukeBox.this.currentlyPlayedSong = null;
 				if (JukeBox.this.finishedPlayback()) {
 					System.out.println("Finished Playback.");
 					// TODO and then?
@@ -67,29 +69,28 @@ public class JukeBox {
 
 				Song song = JukeBox.this.nextSong();
 				JukeBox.this.playlist.remove(song);
-				mediaPlayer.playMedia(song.getLink());
-				JukeBox.this.alreadyPlayedList.add(song);
+				JukeBox.this.playSong(song);
 			}
 
 			@Override
 			public void subItemPlayed(MediaPlayer mediaPlayer, int subItemIndex) {
 				App.sleep(2500); // Wait for the item to actually start
-				System.out.println("Playing now: " + JukeBox.this.getCurrentTitle());
+				String title = JukeBox.this.getCurrentTitle();
+				JukeBox.this.currentlyPlayedSong.setTitle(title);
+				System.out.println("Playing now: " + title);
 			}
 
 		});
 	}
 
-	// NEEDED?
 	/**
 	 * Starts the JukeBox (usually starts with playback then)
 	 */
 	public void startJukeBox() {
 		// TODO
-		Song s = this.nextSong();
-		if (s != null) {
-			this.mediaPlayer.playMedia(s.getLink());
-		}
+		this.setRepeatModeOn(false);
+		this.setShuffleModeOn(false);
+		// this.addLinkListToPlaylist(App.nightcorePlaylist());
 	}
 
 	public void stopJukeBox() {
@@ -110,6 +111,11 @@ public class JukeBox {
 		}
 	}
 
+	private void playSong(Song song) {
+		this.mediaPlayer.playMedia(song.getLink());
+		this.currentlyPlayedSong = song;
+	}
+
 	/**
 	 * Adds all Links in the List to the Playlist
 	 *
@@ -118,12 +124,9 @@ public class JukeBox {
 	 */
 	public void addLinkListToPlaylist(List<String> linkList) {
 		if (linkList != null && !linkList.isEmpty()) {
-			String firstLink = linkList.get(0);
 			linkList.forEach(link -> this.addLinkToPlaylist(link));
-			// Special case for the first link (so it doesnt get played twice):
-			Song firstSong = new Song("https://www.youtube.com/watch?v=" + this.getYTVideoID(firstLink));
-			this.playlist.remove(firstSong);
-			this.alreadyPlayedList.add(firstSong);
+			// Special case for the first link (so it doesn't get played twice):
+			this.playlist.remove(0);
 		}
 	}
 
@@ -143,7 +146,7 @@ public class JukeBox {
 			// start playing when nothing is playing yet
 			if (!this.mediaPlayer.isPlaying()) {
 				if (this.playlist.isEmpty()) {
-					this.mediaPlayer.playMedia(song.getLink());
+					this.playSong(song);
 				}
 			}
 
@@ -228,6 +231,15 @@ public class JukeBox {
 	}
 
 	/**
+	 * returns the currently played track. If no track is played, then null is returned
+	 *
+	 * @return Currently played Song
+	 */
+	public Song getCurrentSong() {
+		return this.currentlyPlayedSong;
+	}
+
+	/**
 	 * Switches the repeat mode. If it was on, it will get turned off and vice versa.
 	 */
 	public void switchRepeatMode() {
@@ -241,6 +253,7 @@ public class JukeBox {
 	public void setRepeatModeOn(boolean on) {
 		this.repeatMode = on;
 		// TODO
+		this.mediaPlayer.setRepeat(on);
 	}
 
 	/**
