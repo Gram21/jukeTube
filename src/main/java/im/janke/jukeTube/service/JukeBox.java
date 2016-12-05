@@ -20,9 +20,13 @@ public class JukeBox {
 	/* The player that plays the tunes */
 	private final HeadlessMediaPlayer mediaPlayer;
 
+	/* Playlist of future songs, already played songs and the currently played song */
 	private List<Song> playlist = new ArrayList<>();
 	private List<Song> alreadyPlayedList = new ArrayList<>();
 	private Song currentlyPlayedSong = null;
+
+	/** Volume */
+	private int volume = 100;
 
 	/** Playback mode repeat (don't limit playback to one playback per song) */
 	private boolean repeatMode = false;
@@ -213,6 +217,19 @@ public class JukeBox {
 	public void unpause() {
 		// TODO
 		this.mediaPlayer.play();
+	}
+
+	public void volumeUp() {
+		this.setVolume(this.volume + 10);
+	}
+
+	public void volumeDown() {
+		this.setVolume(this.volume - 10);
+	}
+
+	public void setVolume(int volume) {
+		this.volume = Math.min(Math.max(volume, 0), 200);
+		this.mediaPlayer.setVolume(volume);
 	}
 
 	/**

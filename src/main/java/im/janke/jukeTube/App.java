@@ -28,7 +28,6 @@ public class App
 
 	}
 
-	// below are convenience methods that might be removed later on!
 	public static void sleep(int millis) {
 		try {
 			Thread.sleep(millis);
