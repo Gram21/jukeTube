@@ -15,11 +15,11 @@
         <div class="navigation">
         <#if user??>
           <a href="/">Home</a> |
-          <a href="/settings">Settings</a> |
+          <a href="/settings">Controls</a> |
           <a href="/logout">Sign out [${user}]</a>
         <#else>
           <a href="/">Home</a> |
-          <a href="/login">Settings</a>
+          <a href="/login">Controls</a>
         </#if>
         </div>
         <div class="body">

@@ -2,6 +2,7 @@ package im.janke.jukeTube.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +25,7 @@ public class JukeBox {
 	private List<Song> playlist = new ArrayList<>();
 	private List<Song> alreadyPlayedList = new ArrayList<>();
 	private Song currentlyPlayedSong = null;
+	private int repeatMode_alreadyPlayedListCounter = 0;
 
 	/** Volume */
 	private int volume = 100;
@@ -32,6 +34,9 @@ public class JukeBox {
 	private boolean repeatMode = false;
 	/** Playback mode shuffle (play songs in random order) */
 	private boolean shuffleMode = false;
+
+	/** Random number generator for shuffle mode */
+	Random random = new Random();
 
 	/**
 	 * Creates a new JukeBox with default values.
@@ -62,18 +67,8 @@ public class JukeBox {
 
 			@Override
 			public void subItemFinished(MediaPlayer mediaPlayer, int subItemIndex) {
-				JukeBox.this.alreadyPlayedList.add(JukeBox.this.currentlyPlayedSong);
-				JukeBox.this.currentlyPlayedSong = null;
-				if (JukeBox.this.finishedPlayback()) {
-					System.out.println("Finished Playback.");
-					// TODO and then?
-					mediaPlayer.stop();
-					return;
-				}
-
-				Song song = JukeBox.this.nextSong();
-				JukeBox.this.playlist.remove(song);
-				JukeBox.this.playSong(song);
+				JukeBox.this.handleFinishedSong();
+				JukeBox.this.startNextSong();
 			}
 
 			@Override
@@ -85,6 +80,27 @@ public class JukeBox {
 			}
 
 		});
+	}
+
+	private void handleFinishedSong() {
+		if (!this.alreadyPlayedList.contains(this.currentlyPlayedSong)) {
+			this.alreadyPlayedList.add(this.currentlyPlayedSong);
+		}
+		this.playlist.remove(JukeBox.this.currentlyPlayedSong);
+		this.currentlyPlayedSong = null;
+	}
+
+	private void startNextSong() {
+		// Finished?
+		if (JukeBox.this.finishedPlayback()) {
+			System.out.println("Finished Playback.");
+			// TODO and then?
+			this.mediaPlayer.stop();
+			return;
+		}
+		// Start playing next song
+		Song song = JukeBox.this.nextSong();
+		JukeBox.this.playSong(song);
 	}
 
 	/**
@@ -103,19 +119,51 @@ public class JukeBox {
 	}
 
 	private boolean finishedPlayback() {
-		return this.playlist.isEmpty();
+		return !this.repeatMode && this.playlist.isEmpty();
 	}
 
+	// TODO FINISH AND TEST THIS
 	private Song nextSong() {
-		// TODO
-		if (!this.playlist.isEmpty()) {
-			return this.playlist.get(0);
+		Song s = null;
+		if (this.shuffleMode && this.repeatMode) {
+			// Both modes active, so we look in both lists
+			int amountOfSongs = this.playlist.size() + this.alreadyPlayedList.size();
+			int index = this.random.nextInt(amountOfSongs);
+			if (amountOfSongs < this.playlist.size()) {
+				s = this.playlist.get(index);
+			} else {
+				index = index - this.playlist.size();
+				s = this.alreadyPlayedList.get(index);
+			}
+		} else if (this.shuffleMode) {
+			// only shuffle mode, so just take a random track from the playlist
+			int index = this.random.nextInt(this.playlist.size());
+			s = this.playlist.get(index);
+			// TODO IDEA: maybe make less random, so same song won't get played often in a short time
+			// try: a small fixed length list with last X played songs, that cannot be chosen
+		} else if (this.repeatMode) {
+			// Repeat mode is on, so if playlist is empty, the already played list is played
+			if (!this.playlist.isEmpty()) {
+				s = this.playlist.get(0);
+			} else if (!this.alreadyPlayedList.isEmpty()) {
+				// we use an array list, that appends in the back, so we start
+				// at the front with the longest not played song
+				this.repeatMode_alreadyPlayedListCounter = (this.repeatMode_alreadyPlayedListCounter + 1)
+						% this.alreadyPlayedList.size();
+				s = this.alreadyPlayedList.get(this.repeatMode_alreadyPlayedListCounter);
+			}
 		} else {
-			return null;
+			if (!this.playlist.isEmpty()) {
+				s = this.playlist.get(0);
+			}
 		}
+		return s;
 	}
 
 	private void playSong(Song song) {
+		if (song == null) {
+			return; // or throw?
+		}
 		this.mediaPlayer.playMedia(song.getLink());
 		this.currentlyPlayedSong = song;
 	}
@@ -199,15 +247,24 @@ public class JukeBox {
 	 *            (YouTube-)Link that should be removed
 	 */
 	public void removeLinkFromPlaylist(String link) {
-		// TODO
-		this.playlist.remove(new Song(link));
+		this.removeLinkFromPlaylist(new Song(link));
+	}
+
+	/**
+	 * Removes a given Link from the PLaylist. Does nothing, when the Link is not found in the Playlist
+	 *
+	 * @param link
+	 *            (YouTube-)Link that should be removed
+	 */
+	public void removeLinkFromPlaylist(Song song) {
+		this.playlist.remove(song);
+		this.alreadyPlayedList.remove(song);
 	}
 
 	/**
 	 * Pauses the playback
 	 */
 	public void pause() {
-		// TODO
 		this.mediaPlayer.pause();
 	}
 
@@ -215,7 +272,6 @@ public class JukeBox {
 	 * Unpauses the playback
 	 */
 	public void unpause() {
-		// TODO
 		this.mediaPlayer.play();
 	}
 
@@ -230,6 +286,16 @@ public class JukeBox {
 	public void setVolume(int volume) {
 		this.volume = Math.min(Math.max(volume, 0), 200);
 		this.mediaPlayer.setVolume(volume);
+	}
+
+	public void next() {
+		// TODO check, test, etc
+		this.handleFinishedSong();
+		this.startNextSong();
+	}
+
+	public void previous() {
+		// TODO
 	}
 
 	/**
@@ -259,7 +325,6 @@ public class JukeBox {
 	 * Switches the repeat mode. If it was on, it will get turned off and vice versa.
 	 */
 	public void switchRepeatMode() {
-		// TODO
 		this.repeatMode = !this.repeatMode;
 	}
 
@@ -268,8 +333,6 @@ public class JukeBox {
 	 */
 	public void setRepeatModeOn(boolean on) {
 		this.repeatMode = on;
-		// TODO
-		this.mediaPlayer.setRepeat(on);
 	}
 
 	/**
@@ -277,7 +340,6 @@ public class JukeBox {
 	 */
 	public void switchShuffleMode() {
 		this.shuffleMode = !this.shuffleMode;
-		// TODO
 	}
 
 	/**
@@ -285,7 +347,6 @@ public class JukeBox {
 	 */
 	public void setShuffleModeOn(boolean on) {
 		this.shuffleMode = on;
-		// TODO
 	}
 
 	/**
