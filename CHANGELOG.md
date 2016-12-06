@@ -5,4 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 ### Added
-- basic functionality to operate on a (VLC) player. NOT FINISHED YET.
+- basic functionality to play YouTube songs in VLC (headless)
+- basic functionality to handle playlist along with shuffle and repeat mode
+- basic webserver and request handling
+- spartanic front-end
