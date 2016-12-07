@@ -13,10 +13,10 @@
     <div class="page">
         <h1>jukeTube</h1>
         <div class="navigation">
-        <#if user??>
+        <#if currentUser??>
           <a href="/">Home</a> |
           <a href="/settings/">Controls</a> |
-          <a href="/logout/">Sign out [${user}]</a>
+          <a href="/logout/">Sign out [${currentUser}]</a>
         <#else>
           <a href="/">Home</a> |
           <a href="/login/">Controls</a>

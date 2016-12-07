@@ -1,5 +1,8 @@
 package im.janke.jukeTube.config;
 
+import static im.janke.jukeTube.util.RequestUtil.getQueryPassword;
+import static im.janke.jukeTube.util.RequestUtil.getQueryUsername;
+import static im.janke.jukeTube.util.RequestUtil.getSessionCurrentUser;
 import static spark.Spark.after;
 import static spark.Spark.before;
 import static spark.Spark.get;
@@ -16,6 +19,7 @@ import org.eclipse.jetty.http.HttpStatus;
 
 import im.janke.jukeTube.model.impl.Song;
 import im.janke.jukeTube.service.JukeBox;
+import im.janke.jukeTube.service.UserController;
 import im.janke.jukeTube.util.Filters;
 import spark.Filter;
 import spark.ModelAndView;
@@ -69,12 +73,12 @@ public class WebConfig {
 		get(WebPath.INDEX, this.serveHome, new FreeMarkerEngine());
 		get(WebPath.LOGIN, this.serveLogin, new FreeMarkerEngine());
 		get(WebPath.SETTINGS, this.serveSettings, new FreeMarkerEngine());
+		get(WebPath.LOGOUT, this.serveAndHandleLogout);
 		get("*", this.notFound, new FreeMarkerEngine());
 
 		post(WebPath.INDEX, this.handleHome, new FreeMarkerEngine());
 		post(WebPath.SETTINGS, this.handleSettings, new FreeMarkerEngine());
 		post(WebPath.LOGIN, this.handleLogin, new FreeMarkerEngine());
-		post(WebPath.LOGOUT, this.handleLogout);
 
 		//Set up after
 		after("*", Filters.addGzipHeader);
@@ -86,6 +90,9 @@ public class WebConfig {
 
 	private TemplateViewRoute serveHome = (Request req, Response res) -> {
 		Map<String, Object> map = new HashMap<>();
+		if (getSessionCurrentUser(req) != null) {
+			map.put("currentUser", getSessionCurrentUser(req));
+		}
 		map.put("currentlyPlaying", this.getCurrentSong());
 		return new ModelAndView(map, TemplatePath.INDEX);
 	};
@@ -121,37 +128,45 @@ public class WebConfig {
 	};
 
 	private Filter beforeLogin = (req, res) -> {
-		// TODO
+		if (getSessionCurrentUser(req) != null) {
+			res.redirect(WebPath.INDEX);
+		}
 	};
-
 	private TemplateViewRoute serveLogin = (req, res) -> {
-		// TODO
-		res.redirect("/");
-		return null;
+		return new ModelAndView(new HashMap<>(), TemplatePath.LOGIN);
 	};
 
 	private TemplateViewRoute handleLogin = (req, res) -> {
-		// TODO
-		res.redirect("/");
-		return null;
+		Map<String, Object> map = new HashMap<>();
+		if (!UserController.authenticate(getQueryUsername(req), getQueryPassword(req))) {
+			map.put("error", "Invalid Login!");
+			return new ModelAndView(map, TemplatePath.LOGIN);
+		}
+		req.session().attribute("currentUser", getQueryUsername(req));
+		map.put("currentUser", getSessionCurrentUser(req));
+		return new ModelAndView(map, TemplatePath.INDEX);
 	};
 
-	private Route handleLogout = (req, res) -> {
-		// TODO
-		// removeAuthenticatedUser(req);
-		res.redirect("/");
+	private Route serveAndHandleLogout = (req, res) -> {
+		// TODO Need for adaption or is this plenty enough?
+		req.session().removeAttribute("currentUser");
+		res.redirect(WebPath.INDEX);
 		return null;
 	};
 
 	private TemplateViewRoute serveSettings = (req, res) -> {
+		Map<String, Object> map = new HashMap<>();
+		if (getSessionCurrentUser(req) != null) {
+			map.put("currentUser", getSessionCurrentUser(req));
+		}
 		// TODO
-		res.redirect("/");
+		res.redirect(WebPath.INDEX);
 		return null;
 	};
 
 	private TemplateViewRoute handleSettings = (req, res) -> {
 		// TODO
-		res.redirect("/");
+		res.redirect(WebPath.INDEX);
 		return null;
 	};
 
