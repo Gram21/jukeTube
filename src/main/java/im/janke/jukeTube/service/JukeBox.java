@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
-import im.janke.jukeTube.App;
 import im.janke.jukeTube.model.impl.Song;
+import im.janke.jukeTube.util.Util;
 import uk.co.caprica.vlcj.component.AudioMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerFactory;
@@ -73,7 +73,7 @@ public class JukeBox {
 
 			@Override
 			public void subItemPlayed(MediaPlayer mediaPlayer, int subItemIndex) {
-				App.sleep(2500); // Wait for the item to actually start
+				Util.sleep(2500); // Wait for the item to actually start
 				String title = JukeBox.this.getCurrentTitle();
 				JukeBox.this.currentlyPlayedSong.setTitle(title);
 				System.out.println("Playing now: " + title);

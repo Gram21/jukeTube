@@ -4,7 +4,7 @@
             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
     <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>${title}  |  jukeTube</title>
         <link rel="stylesheet" type="text/css" href="/css/style.css">
     </head>
@@ -15,11 +15,11 @@
         <div class="navigation">
         <#if user??>
           <a href="/">Home</a> |
-          <a href="/settings">Controls</a> |
-          <a href="/logout">Sign out [${user}]</a>
+          <a href="/settings/">Controls</a> |
+          <a href="/logout/">Sign out [${user}]</a>
         <#else>
           <a href="/">Home</a> |
-          <a href="/login">Controls</a>
+          <a href="/login/">Controls</a>
         </#if>
         </div>
         <div class="body">
