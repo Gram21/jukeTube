@@ -3,8 +3,18 @@
  */
 package im.janke.jukeTube.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import im.janke.jukeTube.model.impl.Song;
 
 /**
  * @author Gram21
@@ -44,6 +54,38 @@ public class Util {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static List<Song> handleYouTubePlaylist(String playlist_id) {
+		List<Song> retList = new ArrayList<>();
+		String url = "https://www.youtube.com/watch?v=DLzxrzFCyOs&list=" + playlist_id;
+		String html = fetchHtml(url);
+		Matcher m = Pattern.compile("data-video-id=\"([^\"]+)\"").matcher(html);
+		while (m.find()) {
+			String vid_id = m.group(1);
+			retList.add(new Song("https://www.youtube.com/watch?v=" + vid_id));
+		}
+		return retList;
+	}
+
+	private static String fetchHtml(String urlString) {
+		StringBuilder html = new StringBuilder();
+		java.net.URL url = null;
+		try {
+			url = new URL(urlString);
+		} catch (MalformedURLException e1) {
+			e1.printStackTrace();
+		}
+		try (BufferedReader input = new BufferedReader(new InputStreamReader(url.openStream()))) {
+			String htmlLine;
+			while ((htmlLine=input.readLine())!=null) {
+				html.append(htmlLine);
+			}
+		} catch (IOException e) {
+			System.err.println("Error in getting Youtube playlist");
+			e.printStackTrace();
+		}
+		return html.toString();
 	}
 
 }
